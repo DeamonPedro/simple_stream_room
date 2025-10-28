@@ -5,6 +5,8 @@ const chatContainer = document.querySelector('.chat-container');
 const player = videojs('video-player');
 const socket = io();
 
+player.hide();
+
 let isResizing = false;
 let currentSubtitle = null;
 
@@ -170,7 +172,6 @@ function srtToVtt(srtText) {
 }
 
 async function loadSubtitle(srtContent, fileName) {
-    // if (currentSubtitle === fileName) return;
     const tracks = player.textTracks();
     for (let i = 0; i < tracks.length; i++) {
         if (tracks[i].kind === 'subtitles' || tracks[i].kind === 'captions') {
@@ -193,23 +194,6 @@ async function loadSubtitle(srtContent, fileName) {
     sendSystemMessage(`Legenda "${fileName}" carregada.`);
 }
 
-
-function togglePlayer() {
-    if (player.paused()) {
-        player.play();
-    } else {
-        player.pause();
-    }
-}
-
-player.controlBar.playToggle.on('click', () => {
-    socket.emit('video event', {
-        type: player.paused() ? 'pause' : 'play',
-        time: player.currentTime(),
-        last_update: Math.floor(Date.now() / 1000)
-    });
-});
-
 player.controlBar.progressControl.on('mouseup', () => {
     socket.emit('video event', {
         type: 'seek',
@@ -217,6 +201,25 @@ player.controlBar.progressControl.on('mouseup', () => {
         last_update: Math.floor(Date.now() / 1000)
     });
 });
+
+function sendPlayEvent() {
+    socket.emit('video event', {
+        type: player.paused() ? 'pause' : 'play',
+        time: player.currentTime(),
+        last_update: Math.floor(Date.now() / 1000)
+    });
+}
+
+player.controlBar.playToggle.on('click', () => {
+    sendPlayEvent();
+});
+
+player.on('click', (evt) => {
+    if (evt.target.tagName == "VIDEO") {
+        sendPlayEvent();
+    }
+});
+
 
 socket.on('chat message', (msg) => {
     messages.push(msg);
@@ -230,21 +233,15 @@ socket.on('video url', async (data) => {
     sendSystemMessage(`O vídeo foi alterado para: ${data.url}`);
 });
 
-socket.on('video update', async (data) => {
-    console.log(data);
-
-    await updatePlayerState(data);
+socket.on('video update', (data) => {
+    updatePlayerState(data);
 });
 
-socket.on('subtitle add', async (data) => {
-    console.log(data);
-
-    await loadSubtitle(data.srt, data.name);
+socket.on('subtitle add', (data) => {
+    loadSubtitle(data.srt, data.name);
 });
 
 socket.on('initial state', async (data) => {
-    console.log(data);
-
     data.messages.forEach(msg => {
         messages.push(msg);
         displayMessage(msg);
@@ -253,10 +250,8 @@ socket.on('initial state', async (data) => {
     if (!data.url) {
         await player.hide();
     } else {
-        console.log(data.url);
-
         await player.show();
-        await player.src({ src: data.url, type: "video/mp4" });
+        await player.src({ src: data.url });
         await player.load();
         await updatePlayerState(data.video)
 
@@ -275,7 +270,7 @@ async function updatePlayerState(video) {
         } else {
             await player.play();
         }
-    } ''
+    }
     if (!video.paused) {
         const now = Math.floor(Date.now() / 1000);
         currentTime += now - video.last_update;
