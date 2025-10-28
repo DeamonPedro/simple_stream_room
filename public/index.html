@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Stream Room</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="video-skin.css">
+    <link href="https://unpkg.com/video.js/dist/video-js.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="video-container">
+            <video id="video-player" class="video-js vjs-fluid vjs-tech" autoplay muted controls preload="auto"
+                data-setup='{ "muted": true }'>
+                <p class="vjs-no-js">
+                    To view this video please enable JavaScript, and consider upgrading to a
+                    web browser that <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5
+                        video</a>
+                </p>
+            </video>
+        </div>
+        <div class="resizer" id="resizer"></div>
+        <div class="chat-container">
+            <div class="chat-header-controls">
+                <button id="set-url-button" class="icon-button" title="Definir URL do Vídeo"><i class="fas fa-link"></i>
+                    Set URL</button>
+                <input type="file" id="subtitle-file-input" accept=".srt" style="display: none;">
+                <button id="load-subtitle-button" class="icon-button" title="Carregar Legenda (SRT)"><i
+                        class="fas fa-file-upload"></i> Load Subtitle</button>
+                <button onclick="togglePlayer();" class="icon-button" title="teste"><i class="fas fa-file-upload"></i>
+                    teste</button>
+            </div>
+            <div class="chat-messages"></div>
+            <div class="chat-input">
+                <input type="text" placeholder="Digite uma mensagem...">
+                <button id="send-button"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960"
+                        width="24">
+                        <path d="M120-160v-240l320-80-320-80v-240l760 320-760 320Z" fill="#fff" />
+                    </svg></button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

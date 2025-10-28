@@ -1,0 +1,50 @@
+.video-js {
+  color: #e0e0e0;
+}
+
+.vjs-control-bar {
+  background-color: rgba(30, 30, 30, 0.85) !important;
+  color: #e0e0e0;
+  box-shadow: none !important;
+}
+
+.vjs-button > .vjs-icon-placeholder:before {
+  color: #e0e0e0;
+}
+
+.vjs-button:hover > .vjs-icon-placeholder:before {
+  color: #26a69a;
+}
+
+.vjs-play-progress {
+  background-color: #26a69a !important;
+}
+
+.vjs-slider {
+  background-color: rgba(68, 68, 68, 0.5) !important;
+}
+
+.vjs-volume-level {
+  background-color: #26a69a !important;
+}
+
+.vjs-menu-button-popup .vjs-menu {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+.vjs-menu-item:hover {
+  background-color: #333;
+  color: #26a69a;
+}
+
+.vjs-big-play-button {
+  background-color: rgba(30, 30, 30, 0.7) !important;
+  border-color: #26a69a !important;
+  color: #26a69a !important;
+  box-shadow: none !important;
+}
+
+.vjs-big-play-button:hover {
+  background-color: rgba(40, 40, 40, 0.8) !important;
+}
