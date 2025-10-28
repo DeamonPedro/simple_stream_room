@@ -1,9 +1,9 @@
 import socketio
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+import uvicorn
 
 ROOM = "videoparty_room"
-
 
 sio = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins="*")
 app = FastAPI()
@@ -67,3 +67,6 @@ async def subtitle_event(sid, data):
 
 
 asgi_app = socketio.ASGIApp(sio, app)
+
+if __name__=="__main__":
+    uvicorn.run("main:asgi_app", host="127.0.0.1", port=8080, lifespan="on", reload=True)

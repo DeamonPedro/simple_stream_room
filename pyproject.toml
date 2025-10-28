@@ -1,0 +1,11 @@
+[project]
+name = "simple-stream-room"
+version = "0.1.0"
+description = "simple simultaneous synchronized transmission server for multiple users"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.120.1",
+    "python-socketio>=5.14.2",
+    "uvicorn>=0.38.0",
+]
