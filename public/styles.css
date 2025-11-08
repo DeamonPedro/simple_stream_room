@@ -8,9 +8,15 @@ body, html {
     color: #e0e0e0;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+}
+
 .container {
     display: flex;
-    height: 100vh;
+    flex: 1;
+    min-height: 0;
 }
 
 .video-container {
@@ -68,11 +74,11 @@ body, html {
 }
 
 .chat-messages {
+    display: flex;
     flex-grow: 1;
     padding: 10px;
-    overflow-y: auto;
-    display: flex;
     flex-direction: column;
+    overflow-y: auto;
 }
 
 .chat-input {

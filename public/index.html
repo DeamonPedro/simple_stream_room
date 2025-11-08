@@ -5,35 +5,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Stream Room</title>
+    <link rel="stylesheet" href="components/menubar/menubar.css">
+    <link rel="stylesheet" href="components/modal/modal.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="video-skin.css">
     <link href="https://unpkg.com/video.js/dist/video-js.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
     <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
 
 <body>
+    <div class="menubar" role="menubar" aria-label="Main Menu">
+        <div class="menubar-menu">
+            <button class="menubar-trigger" data-state="closed" aria-expanded="false" aria-haspopup="true">
+                File
+            </button>
+            <div class="menubar-content" data-state="closed" role="menu">
+                <div class="menubar-item" role="menuitem">New Tab <span class="menubar-shortcut">⌘T</span></div>
+                <div class="menubar-item" role="menuitem">New Window <span class="menubar-shortcut">⌘N</span></div>
+                <div class="menubar-item" role="menuitem" disabled>New Incognito Window</div>
+                <div class="menubar-separator"></div>
+                <div class="menubar-submenu">
+                    <div class="menubar-sub-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
+                        Share
+                        <svg class="submenu-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                            viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round"></path>
+                        </svg>
+                    </div>
+                    <div class="menubar-sub-content" data-state="closed" role="menu">
+                        <div class="menubar-item" role="menuitem">Email link</div>
+                        <div class="menubar-item" role="menuitem">Messages</div>
+                        <div class="menubar-item" role="menuitem">Notes</div>
+                    </div>
+                </div>
+                <div class="menubar-separator"></div>
+                <div class="menubar-item" role="menuitem">Print... <span class="menubar-shortcut">⌘P</span></div>
+            </div>
+        </div>
+        <div class="menubar-menu">
+            <button class="menubar-trigger" data-state="closed" aria-expanded="false" aria-haspopup="true">
+                Edit
+            </button>
+            <div class="menubar-content" data-state="closed" role="menu">
+                <div class="menubar-item" role="menuitem">Undo <span class="menubar-shortcut">⌘Z</span></div>
+                <div class="menubar-item" role="menuitem">Redo <span class="menubar-shortcut">⇧⌘Z</span></div>
+                <div class="menubar-separator"></div>
+                <div class="menubar-submenu">
+                    <div class="menubar-sub-trigger" role="menuitem" aria-haspopup="true" aria-expanded="false">
+                        Find
+                        <svg class="submenu-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                            viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round"></path>
+                        </svg>
+                    </div>
+                    <div class="menubar-sub-content" data-state="closed" role="menu">
+                        <div class="menubar-item" role="menuitem">Search the web...</div>
+                        <div class="menubar-separator"></div>
+                        <div class="menubar-item" role="menuitem">Find...</div>
+                        <div class="menubar-item" role="menuitem">Find Next</div>
+                        <div class="menubar-item" role="menuitem">Find Previous</div>
+                    </div>
+                </div>
+                <div class="menubar-separator"></div>
+                <div class="menubar-item" role="menuitem">Cut</div>
+                <div class="menubar-item" role="menuitem">Copy</div>
+                <div class="menubar-item" role="menuitem">Paste</div>
+            </div>
+        </div>
+    </div>
     <div class="container">
         <div class="video-container">
             <video id="video-player" class="video-js vjs-fluid vjs-tech" autoplay muted controls preload="auto"
                 data-setup='{ "muted": true }'>
                 <p class="vjs-no-js">
                     To view this video please enable JavaScript, and consider upgrading to a
-                    web browser that <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5
+                    web browser that <a href="https://videojs.com/html5-video-support/" target="_blank">supports
+                        HTML5
                         video</a>
                 </p>
             </video>
         </div>
         <div class="resizer" id="resizer"></div>
         <div class="chat-container">
-            <div class="chat-header-controls">
-                <button id="set-url-button" class="icon-button" title="Definir URL do Vídeo"><i class="fas fa-link"></i>
-                    Set URL</button>
-                <input type="file" id="subtitle-file-input" accept=".srt" style="display: none;">
-                <button id="load-subtitle-button" class="icon-button" title="Carregar Legenda (SRT)"><i
-                        class="fas fa-file-upload"></i> Load Subtitle</button>
-            </div>
+            <!-- <div class="chat-header-controls">
+                    <button id="set-url-button" class="icon-button" title="Definir URL do Vídeo"><i class="fas fa-link"></i>
+                        Set URL</button>
+                    <input type="file" id="subtitle-file-input" accept=".srt" style="display: none;">
+                    <button id="load-subtitle-button" class="icon-button" title="Carregar Legenda (SRT)"><i
+                            class="fas fa-file-upload"></i> Load Subtitle</button>
+                    <button id="download-video-button" class="icon-button" title="Baixar Vídeo"><i
+                            class="fas fa-download"></i> Download Video</button>
+                </div> -->
             <div class="chat-messages"></div>
             <div class="chat-input">
                 <input type="text" placeholder="Digite uma mensagem...">
@@ -44,6 +110,21 @@
             </div>
         </div>
     </div>
+    <div id="download-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Download Video</h2>
+            <form id="download-form">
+                <label for="video-url-input">Video URL:</label>
+                <input type="text" id="video-url-input" name="video-url" placeholder="Enter video URL">
+                <label for="filename-input">Filename:</label>
+                <input type="text" id="filename-input" name="filename" placeholder="Enter filename">
+                <button type="submit">Download</button>
+            </form>
+        </div>
+    </div>
+    <script src="components/menubar/menubar.js"></script>
+    <script src="components/modal/modal.js"></script>
     <script src="script.js"></script>
 </body>
 
