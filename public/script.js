@@ -26,8 +26,12 @@ function handleMouseMove(e) {
     const videoWidth = e.clientX;
     const chatWidth = totalWidth - e.clientX;
 
-    videoContainer.style.flex = `0 0 ${videoWidth}px`;
-    chatContainer.style.flex = `0 0 ${chatWidth}px`;
+    // Calculate new flex-grow ratios based on the resized widths
+    const videoFlexGrow = videoWidth / totalWidth;
+    const chatFlexGrow = chatWidth / totalWidth;
+
+    videoContainer.style.flex = `${videoFlexGrow} 1 0%`;
+    chatContainer.style.flex = `${chatFlexGrow} 1 0%`;
 }
 
 const chatMessagesContainer = document.querySelector('.chat-messages');
@@ -138,28 +142,28 @@ chatInput.addEventListener('keypress', (e) => {
     }
 });
 
-setUrlButton.addEventListener('click', () => {
-    const newUrl = prompt('Digite a URL do novo vídeo:');
-    if (newUrl && newUrl.trim() !== '') {
-        socket.emit('video url', { url: newUrl.trim() });
-    }
-});
+// setUrlButton.addEventListener('click', () => {
+//     const newUrl = prompt('Digite a URL do novo vídeo:');
+//     if (newUrl && newUrl.trim() !== '') {
+//         socket.emit('video url', { url: newUrl.trim() });
+//     }
+// });
 
-loadSubtitleButton.addEventListener('click', () => {
-    subtitleFileInput.click();
-});
+// loadSubtitleButton.addEventListener('click', () => {
+//     subtitleFileInput.click();
+// });
 
-subtitleFileInput.addEventListener('change', (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const srtContent = srtToVtt(e.target.result);
-            socket.emit('subtitle add', { srt: srtContent, name: file.name });
-        };
-        reader.readAsText(file);
-    }
-});
+// subtitleFileInput.addEventListener('change', (event) => {
+//     const file = event.target.files[0];
+//     if (file) {
+//         const reader = new FileReader();
+//         reader.onload = (e) => {
+//             const srtContent = srtToVtt(e.target.result);
+//             socket.emit('subtitle add', { srt: srtContent, name: file.name });
+//         };
+//         reader.readAsText(file);
+//     }
+// });
 
 function srtToVtt(srtText) {
     const lines = srtText.split(/\r?\n/);
