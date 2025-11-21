@@ -26,12 +26,8 @@ function handleMouseMove(e) {
     const videoWidth = e.clientX;
     const chatWidth = totalWidth - e.clientX;
 
-    // Calculate new flex-grow ratios based on the resized widths
-    const videoFlexGrow = videoWidth / totalWidth;
-    const chatFlexGrow = chatWidth / totalWidth;
-
-    videoContainer.style.flex = `${videoFlexGrow} 1 0%`;
-    chatContainer.style.flex = `${chatFlexGrow} 1 0%`;
+    videoContainer.style.flex = `0 0 ${videoWidth}px`;
+    chatContainer.style.flex = `0 0 ${chatWidth}px`;
 }
 
 const chatMessagesContainer = document.querySelector('.chat-messages');
@@ -142,38 +138,28 @@ chatInput.addEventListener('keypress', (e) => {
     }
 });
 
-// setUrlButton.addEventListener('click', () => {
-//     const newUrl = prompt('Digite a URL do novo vídeo:');
-//     if (newUrl && newUrl.trim() !== '') {
-//         socket.emit('video url', { url: newUrl.trim() });
-//     }
-// });
-
-// loadSubtitleButton.addEventListener('click', () => {
-//     subtitleFileInput.click();
-// });
-
-// subtitleFileInput.addEventListener('change', (event) => {
-//     const file = event.target.files[0];
-//     if (file) {
-//         const reader = new FileReader();
-//         reader.onload = (e) => {
-//             const srtContent = srtToVtt(e.target.result);
-//             socket.emit('subtitle add', { srt: srtContent, name: file.name });
-//         };
-//         reader.readAsText(file);
-//     }
-// });
-
-function srtToVtt(srtText) {
-    const lines = srtText.split(/\r?\n/);
-    const vtt = ["WEBVTT", ""];
-    for (const line of lines) {
-        if (/^\d+$/.test(line)) continue;
-        vtt.push(line.replace(',', '.'));
+setUrlButton.addEventListener('click', () => {
+    const newUrl = prompt('Digite a URL do novo vídeo:');
+    if (newUrl && newUrl.trim() !== '') {
+        socket.emit('video url', { url: newUrl.trim() });
     }
-    return vtt.join('\n');
-}
+});
+
+loadSubtitleButton.addEventListener('click', () => {
+    subtitleFileInput.click();
+});
+
+subtitleFileInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const srtContent = e.target.result;
+            socket.emit('subtitle add', { srt: srtContent, name: file.name });
+        };
+        reader.readAsText(file);
+    }
+});
 
 async function loadSubtitle(srtContent, fileName) {
     const tracks = player.textTracks();
@@ -268,18 +254,16 @@ socket.on('initial state', async (data) => {
 
 async function updatePlayerState(video) {
     let currentTime = video.time;
-    if (video.paused != player.paused()) {
-        if (video.paused) {
-            await player.pause();
-        } else {
-            await player.play();
-        }
-    }
     if (!video.paused) {
         const now = Math.floor(Date.now() / 1000);
         currentTime += now - video.last_update;
     }
     if (Math.abs(player.currentTime() - currentTime) > 0.5) {
         await player.currentTime(currentTime);
+    }
+    if (video.paused) {
+        await player.pause();
+    } else {
+        await player.play();
     }
 }

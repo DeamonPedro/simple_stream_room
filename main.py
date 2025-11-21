@@ -1,18 +1,55 @@
-import tempfile
 import ffmpeg
 import socketio
-from fastapi import FastAPI
-from os import path
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 
 ROOM = 'videoparty_room'
-
-temp_dir = tempfile.mkdtemp()
 
 sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 
 http_app = FastAPI()
-http_app.mount('/hls', StaticFiles(directory=temp_dir, html=False), name='hls')
+
+VIDEOS_DIR = Path('videos')
+HLS_CACHE_DIR = Path('hls_cache')
+
+@http_app.get("/videos/{file_path:path}/index.m3u8")
+async def get_hls_playlist(file_path: str):
+    source_video_path = VIDEOS_DIR / file_path
+    output_playlist_path = HLS_CACHE_DIR / file_path / "index.m3u8"
+
+    if not source_video_path.is_file():
+        raise HTTPException(status_code=404, detail="Original video not found")
+
+    if not output_playlist_path.is_file():
+        output_playlist_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        try:
+            (
+                ffmpeg.input(str(source_video_path))
+                .output(
+                    str(output_playlist_path),
+                    format='hls',
+                    hls_time=10,
+                    hls_list_size=0,
+                    **{
+                        'c:v': 'libx264',
+                        'crf': 23,
+                        'preset': 'fast',
+                        'c:a': 'aac',
+                        'b:a': '128k',
+                        'pix_fmt': 'yuv420p'
+                    }
+                )
+                .run(capture_stdout=True, capture_stderr=True)
+            )
+        except ffmpeg.Error as e:
+            print(e.stderr.decode())
+            raise HTTPException(status_code=500, detail="FFmpeg conversion failed")
+    return FileResponse(output_playlist_path, media_type="application/x-mpegURL")
+
+http_app.mount('/videos', StaticFiles(directory=HLS_CACHE_DIR), name='video_cache')
 http_app.mount('/', StaticFiles(directory='public', html=True), name='public')
 
 http_app.state = {
@@ -48,22 +85,6 @@ async def chat_message(sid, data):
 @sio.on('video url')
 async def video_set_url(sid, data):
     room_state = http_app.state[ROOM]
-    print(path.isfile(data['url']))
-    if path.isfile(data['url']):
-        filename = path.basename(data['url'])
-        basename, ext = filename.split('.')
-        if ext in ['mp4', 'mkv']:
-            output_filename = basename + '.m3u8'
-            output_path = path.join(temp_dir, output_filename)
-            ffmpeg.input(data['url']).output(
-                output_path,
-                format='hls',
-                hls_time=10,
-                hls_list_size=0,
-                preset='fast',
-                **{'c:v': 'copy', 'c:a': 'copy'}
-            ).run()
-            data['url'] = '/hls/' + output_filename
     room_state['url'] = data['url']
     await sio.emit('video url', data)
 
