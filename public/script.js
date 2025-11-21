@@ -7,6 +7,8 @@ const socket = io();
 
 player.hide();
 
+this.player = player;
+
 let isResizing = false;
 let currentSubtitle = null;
 
@@ -154,22 +156,12 @@ subtitleFileInput.addEventListener('change', (event) => {
     if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-            const srtContent = srtToVtt(e.target.result);
+            const srtContent = e.target.result;
             socket.emit('subtitle add', { srt: srtContent, name: file.name });
         };
         reader.readAsText(file);
     }
 });
-
-function srtToVtt(srtText) {
-    const lines = srtText.split(/\r?\n/);
-    const vtt = ["WEBVTT", ""];
-    for (const line of lines) {
-        if (/^\d+$/.test(line)) continue;
-        vtt.push(line.replace(',', '.'));
-    }
-    return vtt.join('\n');
-}
 
 async function loadSubtitle(srtContent, fileName) {
     const tracks = player.textTracks();
@@ -264,18 +256,16 @@ socket.on('initial state', async (data) => {
 
 async function updatePlayerState(video) {
     let currentTime = video.time;
-    if (video.paused != player.paused()) {
-        if (video.paused) {
-            await player.pause();
-        } else {
-            await player.play();
-        }
-    }
     if (!video.paused) {
         const now = Math.floor(Date.now() / 1000);
         currentTime += now - video.last_update;
     }
     if (Math.abs(player.currentTime() - currentTime) > 0.5) {
         await player.currentTime(currentTime);
+    }
+    if (video.paused) {
+       await player.pause();
+    }else {
+       await player.play();
     }
 }

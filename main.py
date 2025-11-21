@@ -13,6 +13,7 @@ sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 
 http_app = FastAPI()
 http_app.mount('/hls', StaticFiles(directory=temp_dir, html=False), name='hls')
+http_app.mount('/vid', StaticFiles(directory='videos', html=False), name='vid')
 http_app.mount('/', StaticFiles(directory='public', html=True), name='public')
 
 http_app.state = {
