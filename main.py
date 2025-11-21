@@ -14,6 +14,13 @@ http_app = FastAPI()
 VIDEOS_DIR = Path('videos')
 HLS_CACHE_DIR = Path('hls_cache')
 
+if not VIDEOS_DIR.exists():
+    VIDEOS_DIR.mkdir(parents=True)
+
+if not HLS_CACHE_DIR.exists():
+    HLS_CACHE_DIR.mkdir(parents=True)
+
+
 @http_app.get("/videos/{file_path:path}/index.m3u8")
 async def get_hls_playlist(file_path: str):
     source_video_path = VIDEOS_DIR / file_path
