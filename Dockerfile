@@ -2,6 +2,8 @@ FROM ghcr.io/astral-sh/uv:python3.12-alpine
 
 WORKDIR /app
 
+RUN apk add --no-cache ffmpeg
+
 COPY . .
 
 RUN uv sync
